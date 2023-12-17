@@ -33,6 +33,32 @@ public class Day13 {
         return 0;
     }
 
+    public static int findMirror2(String[] grid) {
+        for (int r = 1; r < grid.length; r++) {
+
+            String[] above = Arrays.copyOfRange(grid,0,r);
+            String[] below = Arrays.copyOfRange(grid, r, grid.length);
+            // Reverse the above array
+            String[] reversedAboveArray = reverseArray(above);
+            if (countDifferences(reversedAboveArray, below) == 1) {
+                return r;
+            }
+        }
+        return 0;
+    }
+
+
+    public static int countDifferences(String[] above, String[] below) {
+        int count = 0;
+        for (int i = 0; i < above.length && i < below.length; i++) {
+            for (int j = 0; j < above[i].length(); j++) {
+                if (above[i].charAt(j) != below[i].charAt(j)) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
     public static void main(String[] args) {
         int total = 0;
 
@@ -1423,6 +1449,29 @@ public class Day13 {
             total += col;
         }
 
-        System.out.println("Total: " + total);
+        System.out.println("Total for Part 1: " + total);
+
+        total = 0;
+
+
+        for (String block : input_data.split("\n\n")) {
+            String[] grid = block.split("\n");
+            //First find horizontal symmetry
+            int row = findMirror2(grid);
+            total += row * 100;
+            // Transpose the grid to find vertical symmetry
+            // By transposing the grid, we can reuse same function to find symmetry line
+            String[] transposedGrid = new String[grid[0].length()];
+            for (int i = 0; i < grid[0].length(); i++) {
+                transposedGrid[i] = "";
+                for (String rowStr : grid) {
+                    transposedGrid[i] += rowStr.charAt(i);
+                }
+            }
+
+            int col = findMirror2(transposedGrid);
+            total += col;
+        }
+        System.out.println("Total for Part 2: " + total);
     }
 }
