@@ -2,8 +2,12 @@ package code;
 
 import java.util.Arrays;
 import java.util.OptionalLong;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Day5 {
+    
+    
 
     public static void main(String[] args) {
 
@@ -201,7 +205,6 @@ public class Day5 {
                 707494384 1105582580 247266386
                 2634482493 1422283491 8209873
                 """;
-
         long[][] seedToSoilArray = create2DArray(seedToSoilInput);
         long[][] soilToFertilizerArray = create2DArray(soilToFertilizerInput);
         long[][] fertilizerToWaterArray = create2DArray(fertilizerToWaterInput);
@@ -209,8 +212,11 @@ public class Day5 {
         long[][] lightToTempInputArray = create2DArray(lightToTempInput);
         long[][] tempToHumidityArray = create2DArray(tempToHumidityInput);
         long[][] humidityToLocationArray = create2DArray(humidityToLocationInput);
+       
 
         long[] seeds = {1848591090L, 462385043L ,2611025720L ,154883670L, 1508373603L, 11536371L, 3692308424L, 16905163L ,1203540561L, 280364121L, 3755585679L, 337861951L ,93589727L, 738327409L, 3421539474L, 257441906L, 3119409201L, 243224070L, 50985980L, 7961058L};
+
+        //Part 1
         long[] locations = new long[seeds.length];
         for (int i = 0; i < seeds.length; i++) {
                 long soil = getMapping(seedToSoilArray, i);
@@ -225,6 +231,17 @@ public class Day5 {
         OptionalLong min = Arrays.stream(locations).min();
         System.out.println(min.getAsLong());
 
+        // Part 2
+        // There are 10 pairs and 10 threads , so each thread will print the minimum location , manually find the
+        // minimum from the 10 outputs.
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+        for (int i = 0; i < seeds.length -1 ; i+=2) {
+
+            executorService.submit(new Task(seeds[i],seeds[i] + seeds[i+1],seedToSoilArray,soilToFertilizerArray,
+                    fertilizerToWaterArray,waterToLightArray,lightToTempInputArray,tempToHumidityArray,humidityToLocationArray,Long.MAX_VALUE));
+
+        }
 
     }
 
@@ -252,5 +269,55 @@ public class Day5 {
         }
 
         return array;
+    }
+
+
+    static class Task implements Runnable {
+
+        private long[][] seedToSoilArray;
+        private long[][] soilToFertilizerArray;
+        private long[][] fertilizerToWaterArray;
+        private long[][] waterToLightArray;
+        private long[][] lightToTempInputArray;
+        private long[][] tempToHumidityArray;
+
+        private long[][] humidityToLocationArray;
+
+        private long minLocation;
+
+        private long start;
+
+        private long end;
+
+        public Task(long start, long end, long[][] seedToSoilArray, long[][] soilToFertilizerArray, long[][] fertilizerToWaterArray, long[][] waterToLightArray, long[][] lightToTempInputArray, long[][] tempToHumidityArray, long[][] humidityToLocationArray, long minLocation) {
+            this.seedToSoilArray = seedToSoilArray;
+            this.soilToFertilizerArray = soilToFertilizerArray;
+            this.fertilizerToWaterArray = fertilizerToWaterArray;
+            this.waterToLightArray = waterToLightArray;
+            this.lightToTempInputArray = lightToTempInputArray;
+            this.tempToHumidityArray = tempToHumidityArray;
+            this.humidityToLocationArray = humidityToLocationArray;
+            this.minLocation = minLocation;
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        public void run() {
+            for (long i = start; i < end; i++) {
+               
+                long soil = getMapping(seedToSoilArray, i);
+                long fertilizer = getMapping(soilToFertilizerArray, soil);
+                long water = getMapping(fertilizerToWaterArray, fertilizer);
+                long light = getMapping(waterToLightArray, water);
+                long temp = getMapping(lightToTempInputArray, light);
+                long humidity = getMapping(tempToHumidityArray, temp);
+                long location = getMapping(humidityToLocationArray, humidity);
+                if(location < minLocation){
+                    minLocation = location;
+                }
+            }
+            System.out.println(minLocation);
+        }
     }
 }
