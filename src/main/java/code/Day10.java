@@ -8,7 +8,9 @@ public class Day10 {
     private static final char[] PIPES = {'|', '-', 'L', 'J', '7', 'F'};
     private static final int[] DIRS = {-1,0,0,1,1,0,0,-1};
 
-    private char[][] grid;
+    private final char[][] grid;
+
+    private final boolean[][] visited;
     private final int rows;
     private final int cols;
 
@@ -16,6 +18,7 @@ public class Day10 {
         rows = input.length;
         cols = input[0].length();
         grid = new char[rows][cols];
+        visited = new boolean[rows][cols];
 
         for (int i = 0; i < rows; i++) {
             grid[i] = input[i].toCharArray();
@@ -37,7 +40,7 @@ public class Day10 {
 
     private int bfs(int startRow, int startCol) {
         Queue<int[]> queue = new ArrayDeque<>();
-        boolean[][] visited = new boolean[rows][cols];
+
         int[][] distance = new int[rows][cols];
 
         queue.offer(new int[]{startRow, startCol});
@@ -70,18 +73,35 @@ public class Day10 {
                 }
             }
         }
+        return maxDistance;
+    }
 
-        for (int i = 0; i < distance.length; i++) {
+    private int findNests(){
+        // Use the odd even approach , if ray crosses the loop odd number of times , its within loop
+        // if even , outside the loop
+        int inside_count = 0;
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                if(visited[i][j])
+                    continue;
+                int crosses = 0;
+                int x2 = i;
+                int y2 = j;
+                // Try to simulate a ray crossing diagonally
+                while(x2 < grid.length && y2 < grid[0].length) {
+                    char c2 = grid[x2][y2];
+                    if(visited[x2][y2] && c2 !='L' && c2 !='7')
+                        crosses += 1;
+                    x2 += 1;
+                    y2 += 1;
+                }
 
-            for (int j = 0; j < distance[0].length; j++) {
-                System.out.print(distance[i][j] + " ");
-
+                if(crosses % 2 == 1)
+                    inside_count += 1;
             }
-            System.out.println();
 
         }
-
-        return maxDistance;
+        return inside_count;
     }
 
     private boolean canConnect(char currentPipe, char newPipe, int idx) {
@@ -103,6 +123,9 @@ public class Day10 {
             default -> false;
         };
     }
+
+
+
 
 
     public int findFarthestPoint() {
@@ -271,6 +294,7 @@ public class Day10 {
                 J-FJ.-JL|J.-L--JFJL-FJ-L|J--|LL-7.-LL-JLJ-LLJJ-L7-L7J--J-7.7--L-J-JL|-LLLJLLJ-LJ.L-LJ--..L-|-JJ-L|---|7JFL-L--J|-F-J-|-JJFJ-LJ-LL7-7LJ-7L-JJ
                 """;
 
+
         String[] inputArray = input.split("\n");
         // Part 1
         Day10 pipeNetwork = new Day10(inputArray);
@@ -279,5 +303,7 @@ public class Day10 {
         System.out.println("The farthest point from the start is " + farthestPoint + " steps away.");
 
         //Part 2
+
+        System.out.println("Nests are " + pipeNetwork.findNests());
     }
 }
