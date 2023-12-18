@@ -177,8 +177,8 @@ public class Day17 {
             }
         }
 
-        System.out.println("Part 1" + part1(grid,rows,cols));
-        System.out.println("Part 2" + part2(grid,rows,cols));
+        System.out.println("Part 1 " + part1(grid,rows,cols));
+        System.out.println("Part 2 " + part2(grid,rows,cols));
 
 
     }
