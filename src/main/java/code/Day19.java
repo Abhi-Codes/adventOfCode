@@ -911,10 +911,7 @@ public class Day19 {
             String[] values = valueStr.split(",");
 
             // Add key and values to the map
-            List<String> valueList = new ArrayList<>();
-            for (String value : values) {
-                valueList.add(value);
-            }
+            List<String> valueList = new ArrayList<>(Arrays.asList(values));
             resultMap.put(key, valueList);
         }
 
